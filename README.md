@@ -1,6 +1,7 @@
 # plumerise
 
-This package provides modules for computing plume rise from emissions output.
+This package provides a module for computing plume rise from time-profiled
+emissions output.
 
 ## Development
 
@@ -33,7 +34,6 @@ to the search path.
 Use pytest:
 
     py.test
-    py.test test/plumerise/test_calculator.py
 
 You can also use the ```--collect-only``` option to see a list of all tests.
 
@@ -70,4 +70,3 @@ it means you need in upgrade pip.  One way to do so is with the following:
 ## Usage
 
 TODO: ...Fill in...
-

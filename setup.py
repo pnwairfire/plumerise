@@ -25,7 +25,7 @@ setup(
         "Operating System :: MacOS"
     ],
     url='https://github.com/pnwairfire/plumerise',
-    description='Package for computing plume rise from emissions output.',
+    description='Package for computing plume rise from time-profiled emissions output.',
     install_requires=[
         "pyairfire>=0.8.16"
     ],
