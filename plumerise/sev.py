@@ -14,6 +14,21 @@ class SEVPlumeRise(object):
     TODO: acknowledge original authors (STI?)
     """
 
+    ALPHA = 0.24
+    BETA = 170
+    REF_POWER = 1e6
+    GAMMA = 0.35
+    DELTA = 0.6
+    REF_N = 2.5e-4
+    GRAVITY = 9.8
+    #REF_PRESSURE = 1000
+    PLUME_BOTTOM_OVER_TOP = 0.5
+
+    def __init__(self, **config):
+        self._config = config
+
+    def config(self, key):
+        return self._config.get(key.lower, getattr(self, key))
 
     def compute(self, local_met, fire_area, smolder_fraction=0.0):
         """
