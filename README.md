@@ -49,9 +49,9 @@ First, install pip (with sudo if necessary):
 
     apt-get install python-pip
 
-Then, to install, for example, v0.1.0, use the following (with sudo if necessary):
+Then, to install, for example, v0.1.1, use the following (with sudo if necessary):
 
-    pip install --trusted-host pypi.smoke.airfire.org -i http://pypi.smoke.airfire.org/simple plumerise==v0.1.0
+    pip install --trusted-host pypi.smoke.airfire.org -i http://pypi.smoke.airfire.org/simple plumerise==v0.1.1
 
 If you get an error like
 
