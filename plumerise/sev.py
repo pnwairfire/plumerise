@@ -43,10 +43,11 @@ class SEVPlumeRise(object):
         # TODO: test this to make sure it's working correctly
         local_met_array = [e[1] for e in sorted(local_met.items(), key=lambda e: e[0])]
         plume_rise = {}
-        plume_rise['hours'] = []
+        plume_rise['hours'] = {}
 
         # loop over ordered list of hourly met data
-        for met_loc in local_met_array:
+        for dt in local_met:
+            met_loc = local_met[dt]
             if not met_loc.get('HGTS') or not met_loc.get('RELH') or not met_loc.get('TPOT'):
                 continue
             hourly_data = {}
@@ -90,7 +91,7 @@ class SEVPlumeRise(object):
                 for p in range(5, 100, 5):
                     plume_rise_hr["percentile_%03d" % p] = interp_percentile(p)
 
-            plume_rise['hours'].append(plume_rise_hr)
+            plume_rise['hours'][dt] = plume_rise_hr
 
         return plume_rise
 
