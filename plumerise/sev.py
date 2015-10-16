@@ -11,11 +11,9 @@ class SEVPlumeRise(object):
     """
 
     SEVPlumeRise was copied from BlueSky Framework, and subsequently modified
-    TODO: acknoledge original authors (STI?)
+    TODO: acknowledge original authors (STI?)
     """
 
-    # def __init__(self, fires):
-    #     self.fires = fires
 
     def compute(self, local_met, fire_area, smolder_fraction=0.0):
         """
