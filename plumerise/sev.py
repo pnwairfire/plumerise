@@ -23,7 +23,7 @@ class SEVPlumeRise(object):
          - smoldering_fraction -- smoldering fraction of consumption (?)
          - frp -- FRP value (in units of Watts)
         """
-        self.log.info("Running SEV Plume Rise model")
+        logging.info("Running SEV Plume Rise model")
 
         local_met_array = [e[1] for e in sort(local_met.items(), key=lambda e: e[0])] # TODO: test this
         plume_rise = {}
