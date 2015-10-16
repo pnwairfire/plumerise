@@ -45,10 +45,6 @@ See [pytest](http://pytest.org/latest/getting-started.html#getstarted) for more 
 
 ### Installing With pip
 
-TODO: ...Fill In...
-
-<!--
-
 First, install pip (with sudo if necessary):
 
     apt-get install python-pip
@@ -64,8 +60,6 @@ If you get an error like
 it means you need in upgrade pip.  One way to do so is with the following:
 
     pip install --upgrade pip
-
--->
 
 ## Usage
 
