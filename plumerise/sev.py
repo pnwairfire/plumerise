@@ -30,10 +30,11 @@ class SEVPlumeRise(object):
     def config(self, key):
         return self._config.get(key.lower, getattr(self, key))
 
-    def compute(self, local_met, fire_area, smolder_fraction=0.0):
+    def compute(self, local_met, fire_area, smolder_fraction=0.0, frp=None):
         """
         args
          - local_met
+         - fire_area
         kwargs
          - smoldering_fraction -- smoldering fraction of consumption (?)
          - frp -- FRP value (in units of Watts)
@@ -44,6 +45,18 @@ class SEVPlumeRise(object):
         local_met_array = [e[1] for e in sorted(local_met.items(), key=lambda e: e[0])]
         plume_rise = {}
         plume_rise['hours'] = {}
+
+        if frp is None:
+            # FRP approximated by averaging the max values here:
+            # http://www.gmes-atmosphere.eu/d/services/gac/nrt/fire_radiative_power
+            frp = 4180.8 * fire_area
+            logging.debug("Computed frp: %s", frp)
+        elif frp < 0.0:
+            logging.debug("Passed in frp less than zero (%s); setting to zero", frp)
+            frp = 0.0
+        else:
+            logging.debug("Using passed in frp: %s", frp)
+
 
         # loop over ordered list of hourly met data
         for dt in local_met:
@@ -66,13 +79,7 @@ class SEVPlumeRise(object):
             # The met file may spell this variable one of two ways
             pbl = met_loc.get('HPBL') if met_loc.get('PBLH') is None else met_loc.get('PBLH')
             hourly_data['height_abl'] = pbl                      # m
-
-            # Get
-            # FRP approximated by averaging the max values here:
-            # http://www.gmes-atmosphere.eu/d/services/gac/nrt/fire_radiative_power
-            # TODO: If known by caller, let frp be passed in directly rather than set to
-            #  4180.8 * fire_area; if passed in value is < 0, set to 0
-            hourly_data['frp'] = 4180.8 * fire_area
+            hourly_data['frp'] = frp
 
             plume_height = self.cal_smoke_height(hourly_data)
             plume_top_meters = plume_height
