@@ -60,7 +60,7 @@ class SEVPlumeRise(object):
 
 
         # loop over ordered list of hourly met data
-        for dt in local_met:
+        for dt in sorted(local_met.keys()):
             met_loc = local_met[dt]
             if not met_loc.get('HGTS') or not met_loc.get('RELH') or not met_loc.get('TPOT'):
                 continue
