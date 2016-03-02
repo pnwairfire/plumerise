@@ -3,6 +3,15 @@
 This package provides a module for computing plume rise from time-profiled
 emissions output.
 
+## Non-python Dependencies
+
+### FEPS
+
+If running FEPS plumerise, you'll need the feps_weather and feps_plumerise
+executables. They are expected to reside in a directory in the search path.
+Contact [USFS PNW AirFire Research Team](http://www.airfire.org/) for more
+information.
+
 ## Development
 
 Via ssh:
