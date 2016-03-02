@@ -7,6 +7,8 @@ __copyright__   = "Copyright 2014, AirFire, PNW, USFS"
 import logging
 import math
 
+from . import compute_plumerise_hour
+
 class SEVPlumeRise(object):
     """
 
@@ -85,20 +87,7 @@ class SEVPlumeRise(object):
             plume_top_meters = plume_height
             plume_bottom_meters = plume_height * float(self.config("PLUME_BOTTOM_OVER_TOP"))
 
-            plume_rise_hr = {
-                'smolder_fraction': smolder_fraction #,
-                # 'plume_bottom_meters': plume_bottom_meters,
-                # 'plume_top_meters': plume_top_meters
-            }
-
-            if plume_top_meters is not None and plume_bottom_meters is not None:
-                plume_rise_hr['percentile_000'] = plume_bottom_meters
-                plume_rise_hr['percentile_100'] = plume_top_meters
-                interp_percentile = lambda p : (plume_bottom_meters + ((plume_top_meters - plume_bottom_meters) / 100.0) * p)
-                for p in range(5, 100, 5):
-                    plume_rise_hr["percentile_%03d" % p] = interp_percentile(p)
-
-            plume_rise['hours'][dt] = plume_rise_hr
+            plume_rise['hours'][dt] = compute_plumerise_hour(smolder_fraction, plume_top_meters, plume_bottom_meters)
 
         return plume_rise
 
