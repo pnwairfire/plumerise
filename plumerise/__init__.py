@@ -7,7 +7,7 @@ __version__ = '.'.join([str(n) for n in __version_info__])
 
 def compute_plumerise_hour(smoldering_fraction, plume_top_meters, plume_bottom_meters):
     plume_rise_hr = {
-        'smolder_fraction': smolder_fraction #,
+        'smolder_fraction': smoldering_fraction #,
         # 'plume_bottom_meters': plume_bottom_meters,
         # 'plume_top_meters': plume_top_meters
     }
