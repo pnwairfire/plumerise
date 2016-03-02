@@ -44,7 +44,6 @@ class SEVPlumeRise(object):
         logging.info("Running SEV Plume Rise model")
 
         # TODO: test this to make sure it's working correctly
-        local_met_array = [e[1] for e in sorted(local_met.items(), key=lambda e: e[0])]
         plume_rise = {}
         plume_rise['hours'] = {}
 
