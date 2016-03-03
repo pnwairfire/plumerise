@@ -4,9 +4,11 @@
 __author__      = "Joel Dubowy"
 __copyright__   = "Copyright 2014, AirFire, PNW, USFS"
 
+import csv
 import logging
 import math
 import os
+import subprocess
 import tempfile
 
 from . import compute_plumerise_hour
@@ -38,30 +40,26 @@ class FEPSPlumeRise(object):
         return self._config.get(key.lower, getattr(self, key))
 
     def compute(self, timeprofile, consumption, fire_location_info,
-            start, working_dir=None):
+            working_dir=None):
         working_dir = working_dir or tempfile.mkdtemp()
         plume_file = self._get_plume_file(timeprofile, consumption,
             fire_location_info, working_dir)
 
-        heat, plume_rise = self._read_plumerise(plume_file, sorted(timeprofile.keys()))
+        return self._read_plumerise(plume_file, sorted(timeprofile.keys()))
 
-        return {
-            'heat': heat,
-            'plume_rise': plume_rise
-        }
 
     def _get_plume_file(self, timeprofile, consumption, fire_location_info,
-            start, working_dir):
+            working_dir):
         timeprofile_file = os.path.join(working_dir, "profile.txt")
         consumption_file = os.path.join(working_dir, "cons.txt")
         plume_file = os.path.join(working_dir, "plume.txt")
 
-        diurnal_file = self._get_diurnal_file(fire_location_info, start,
+        diurnal_file = self._get_diurnal_file(fire_location_info,
             working_dir)
 
         # TODO: This is rather hackish... is there a better way?
         self._write_profile(timeprofile, timeprofile_file)
-        self._write_consumption(consumption, consumption_file)
+        self._write_consumption(consumption, fire_location_info, consumption_file)
 
         plumerise_args = [
             self.config("FEPS_PLUMERISE_BINARY"),
@@ -71,6 +69,7 @@ class FEPSPlumeRise(object):
             "-a", str(fire_location_info["area"]),
             "-o", plume_file
         ]
+        # TODO: log output?
         subprocess.check_output(plumerise_args)
 
         return plume_file
@@ -100,7 +99,8 @@ class FEPSPlumeRise(object):
             "-w", weather_file,
             "-o", diurnal_file
         ]
-        context.execute(weather_args)
+        # TODO: log output?
+        subprocess.check_output(weather_args)
 
         return diurnal_file
 
@@ -123,8 +123,8 @@ class FEPSPlumeRise(object):
         #   day (2015-08-05), and all listings has either 150.0 or 40.0
         "moisture_duff": 100.0
     }
-    def _fill_fire_location_info(self, start, fire_location_info):
-        for k, v in FIRE_LOCATION_INFO_DEFAULTS.items():
+    def _fill_fire_location_info(self, fire_location_info):
+        for k, v in self.FIRE_LOCATION_INFO_DEFAULTS.items():
             if fire_location_info.get(k) is None:
                 fire_location_info[k] = v
 
@@ -133,11 +133,12 @@ class FEPSPlumeRise(object):
         f.write("cons_flm=%f\n" % consumption["flaming"])
         f.write("cons_sts=%f\n" % consumption["smoldering"])
         f.write("cons_lts=%f\n" % consumption["residual"])
-        f.write("cons_duff=%f\n" % consumption["duff"])
+        # TODO: what to do if duff consumption isn't defined? is 0.0 appropriate?
+        f.write("cons_duff=%f\n" % consumption.get("duff", 0.0))
         f.write("moist_duff=%f\n" % fire_location_info['moisture_duff'])
         f.close()
 
-    def _write_profile(self, timeprofile_file):
+    def _write_profile(self, timeprofile, timeprofile_file):
         with open(timeprofile_file, 'w') as f:
             f.write("hour, area_fract, flame, smolder, residual\n")
             hour = 0
@@ -147,7 +148,7 @@ class FEPSPlumeRise(object):
                     #  number of hours since first time (which would be
                     #  different than 'hour' if timestep isn't one hour) ?
                     hour,
-                    timeprofile[dt]["area_fract"],
+                    timeprofile[dt]["area_fraction"],
                     timeprofile[dt]["flaming"],
                     timeprofile[dt]["smoldering"],
                     timeprofile[dt]["residual"]))
@@ -156,15 +157,13 @@ class FEPSPlumeRise(object):
     def _read_plumerise(self, plume_file, sorted_timestamps):
         behavior = self.config("PLUME_TOP_BEHAVIOR").lower()
         plume_rise = {
-            "hours": {},
-            "heat": {}
+            "hours": {}
         }
 
         hour = 0
         with open(plume_file, 'r') as f:
             for row in csv.DictReader(f, skipinitialspace=True):
-                # Save the heat (returned as emissions, not plume rise)
-                heat.append(float(row["heat"]))
+                heat = float(row["heat"])
 
                 smoldering_fraction = float(row["smold_frac"])
                 plume_bottom_meters = float(row["plume_bot"])
@@ -189,4 +188,4 @@ class FEPSPlumeRise(object):
                 plume_rise['hours'][dt] = compute_plumerise_hour(smoldering_fraction, plume_top_meters, plume_bottom_meters)
                 hour += 1
 
-        return heat, plumeRise
+        return plume_rise
