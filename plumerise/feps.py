@@ -6,6 +6,8 @@ __copyright__   = "Copyright 2014, AirFire, PNW, USFS"
 
 import logging
 import math
+import os
+import tempfile
 
 from . import compute_plumerise_hour
 
@@ -32,13 +34,14 @@ class FEPSPlumeRise(object):
     def __init__(self, **config):
         self._config = config
 
-
     def config(self, key):
         return self._config.get(key.lower, getattr(self, key))
 
-    def compute(self, timeprofile, consumption, moisture_duff, fire_area):
+    def compute(self, timeprofile, consumption, fire_location_info,
+            start, working_dir=None):
+        working_dir = working_dir or tempfile.mkdtemp()
         plume_file = self._get_plume_file(timeprofile, consumption,
-            moisture_duff, fire_area)
+            fire_location_info, working_dir)
 
         heat, plume_rise = self._read_plumerise(plume_file, sorted(timeprofile.keys()))
 
@@ -47,67 +50,91 @@ class FEPSPlumeRise(object):
             'plume_rise': plume_rise
         }
 
-    def _get_plume_file(self, timeprofile, consumption, moisture_duff):
-        FEPS_PLUMERISE = self.config("FEPS_PLUMERISE_BINARY")
-        if "extra:plume_file" in fireLoc["metadata"]:
-            plume_file = fireLoc["metadata"]["extra:plume_file"]
-        else:
-            timeprofile_file = context.full_path("profile.txt")
-            consumption_file = context.full_path("cons.txt")
-            plume_file = context.full_path("plume.txt")
-            context.archive_file(timeprofile_file)
-            context.archive_file(plume_file)
+    def _get_plume_file(self, timeprofile, consumption, fire_location_info,
+            start, working_dir):
+        timeprofile_file = os.path.join(working_dir, "profile.txt")
+        consumption_file = os.path.join(working_dir, "cons.txt")
+        plume_file = os.path.join(working_dir, "plume.txt")
 
-            diurnal_file = self.get_diurnal_file(context, fireLoc)
+        diurnal_file = self._get_diurnal_file(fire_location_info, start,
+            working_dir)
 
-            # TODO: This is rather hackish... is there a better way?
-            self._write_profile(timeprofile, timeprofile_file)
-            self._write_consumption(consumption, consumption_file)
+        # TODO: This is rather hackish... is there a better way?
+        self._write_profile(timeprofile, timeprofile_file)
+        self._write_consumption(consumption, consumption_file)
 
-            context.execute(FEPS_PLUMERISE,
-                            "-w", diurnal_file,
-                            "-p", timeprofile_file,
-                            "-c", consumption_file,
-                            "-a", str(fireLoc["area"]),
-                            "-o", plume_file)
-            fireLoc["metadata"]["extra:plume_file"] = plume_file
+        plumerise_args = [
+            self.config("FEPS_PLUMERISE_BINARY"),
+            "-w", diurnal_file,
+            "-p", timeprofile_file,
+            "-c", consumption_file,
+            "-a", str(fire_location_info["area"]),
+            "-o", plume_file
+        ]
+        subprocess.check_output(plumerise_args)
+
         return plume_file
 
-    def get_diurnal_file(self, context, fireLoc):
-        FEPS_WEATHER = self.config("FEPS_WEATHER_BINARY")
-        if "extra:diurnal_file" in fireLoc["metadata"]:
-            diurnalFile = fireLoc["metadata"]["extra:diurnal_file"]
-        else:
-            weatherFile = context.full_path("weather.txt")
-            diurnalFile = context.full_path("diurnal.txt")
-            context.archive_file(weatherFile)
-            context.archive_file(diurnalFile)
-            f = open(weatherFile, 'w')
-            f.write("sunsetTime=%d\n" % fireLoc.local_weather.sunset_hour)  # Time of sun set
-            f.write("middayTime=%d\n" % fireLoc.local_weather.max_temp_hour)  # Time of max temp
-            f.write("predawnTime=%d\n" % fireLoc.local_weather.min_temp_hour)   # Time of min temp
-            f.write("minHumid=%f\n" % fireLoc.local_weather.min_humid)  # Min humid
-            f.write("maxHumid=%f\n" % fireLoc.local_weather.max_humid)  # Max humid
-            f.write("minTemp=%f\n" % fireLoc.local_weather.min_temp)  # Min temp
-            f.write("maxTemp=%f\n" % fireLoc.local_weather.max_temp)  # Max temp
-            f.write("minWindAtFlame=%f\n" % fireLoc.local_weather.min_wind) # Min wind at flame height
-            f.write("maxWindAtFlame=%f\n" % fireLoc.local_weather.max_wind) # Max wind at flame height
-            f.write("minWindAloft=%f\n" % fireLoc.local_weather.min_wind_aloft) # Min transport wind aloft
-            f.write("maxWindAloft=%f\n" % fireLoc.local_weather.max_wind_aloft) # Max transport wind aloft
-            f.close()
-            context.execute(FEPS_WEATHER,
-                            "-w", weatherFile,
-                            "-o", diurnalFile)
-            fireLoc["metadata"]["extra:diurnal_file"] = diurnalFile
-        return diurnalFile
+    def _get_diurnal_file(self, fire_location_info, working_dir):
+        self._fill_fire_location_info(fire_location_info)
 
-    def _write_consumption(self, consumption, moisture_duff, filename):
+        weather_file = os.path.join(working_dir, "weather.txt")
+        diurnal_file = os.path.join(working_dir, "diurnal.txt")
+
+        f = open(weather_file, 'w')
+        f.write("sunsetTime=%d\n" % fire_location_info['sunset_hour'])  # Time of sun set
+        f.write("middayTime=%d\n" % fire_location_info['max_temp_hour'])  # Time of max temp
+        f.write("predawnTime=%d\n" % fire_location_info['min_temp_hour'])   # Time of min temp
+        f.write("minHumid=%f\n" % fire_location_info['min_humid'])  # Min humid
+        f.write("maxHumid=%f\n" % fire_location_info['max_humid'])  # Max humid
+        f.write("minTemp=%f\n" % fire_location_info['min_temp'])  # Min temp
+        f.write("maxTemp=%f\n" % fire_location_info['max_temp'])  # Max temp
+        f.write("minWindAtFlame=%f\n" % fire_location_info['min_wind']) # Min wind at flame height
+        f.write("maxWindAtFlame=%f\n" % fire_location_info['max_wind']) # Max wind at flame height
+        f.write("minWindAloft=%f\n" % fire_location_info['min_wind_aloft']) # Min transport wind aloft
+        f.write("maxWindAloft=%f\n" % fire_location_info['max_wind_aloft']) # Max transport wind aloft
+        f.close()
+
+        weather_args = [
+            self.config("FEPS_WEATHER_BINARY"),
+            "-w", weather_file,
+            "-o", diurnal_file
+        ]
+        context.execute(weather_args)
+
+        return diurnal_file
+
+    FIRE_LOCATION_INFO_DEFAULTS = {
+        "min_wind": 6,
+        "max_wind": 6,
+        "min_wind_aloft": 6,
+        "max_wind_aloft": 6,
+        "min_humid": 40,
+        "max_humid": 80,
+        "min_temp": 13,
+        "max_temp": 30,
+        "min_temp_hour": 4,
+        "max_temp_hour": 14,
+        "snow_month": 5,
+        "rain_days": 8,
+        "sunrise_hour": 6,
+        "sunset_hour": 18,
+        # TODO: what is good default for 'moisture_duff'? I looked at one
+        #   day (2015-08-05), and all listings has either 150.0 or 40.0
+        "moisture_duff": 100.0
+    }
+    def _fill_fire_location_info(self, start, fire_location_info):
+        for k, v in FIRE_LOCATION_INFO_DEFAULTS.items():
+            if fire_location_info.get(k) is None:
+                fire_location_info[k] = v
+
+    def _write_consumption(self, consumption, fire_location_info, filename):
         f = open(filename, 'w')
         f.write("cons_flm=%f\n" % consumption["flaming"])
         f.write("cons_sts=%f\n" % consumption["smoldering"])
         f.write("cons_lts=%f\n" % consumption["residual"])
         f.write("cons_duff=%f\n" % consumption["duff"])
-        f.write("moist_duff=%f\n" % moisture_duff)
+        f.write("moist_duff=%f\n" % fire_location_info['moisture_duff'])
         f.close()
 
     def _write_profile(self, timeprofile_file):
