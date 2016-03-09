@@ -179,7 +179,7 @@ class FEPSPlumeRise(object):
                     plume_top_meters = plume_bottom_meters * 2
                 elif behavior == "auto":
                     if plume_top_meters < plume_bottom_meters:
-                        self.log.debug("Adjusting plume_top for hour %d from Briggs to FEPS equation value", hour)
+                        logging.debug("Adjusting plume_top for hour %d from Briggs to FEPS equation value", hour)
                         plume_top_meters = plume_bottom_meters * 2
                 else:
                     raise Exception("Unknown value for PLUME_TOP_BEHAVIOR: %s", behavior)
