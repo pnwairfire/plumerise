@@ -3,6 +3,10 @@
 This package provides a module for computing plume rise from time-profiled
 emissions output.
 
+***This software is provided for research purposes only. It's output may
+not accurately reflect observed data due to numerous reasons. Data are
+provisional; use at own risk.***
+
 ## Non-python Dependencies
 
 ### FEPS
