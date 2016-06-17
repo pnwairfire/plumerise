@@ -7,7 +7,6 @@ emissions output.
 not accurately reflect observed data due to numerous reasons. Data are
 provisional; use at own risk.***
 
-
 ## Python 2 and 3 Support
 
 This package was originally developed to support python 2.7, but has since
@@ -37,7 +36,7 @@ or http:
 
 Run the following to install dependencies:
 
-    pip install -r requirements.txt
+    pip install --trusted-host pypi.smoke.airfire.org -r requirements.txt
 
 Run the following to install packages required for development and testing:
 
