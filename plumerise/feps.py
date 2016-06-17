@@ -123,7 +123,7 @@ class FEPSPlumeRise(object):
         "moisture_duff": 100.0
     }
     def _fill_fire_location_info(self, fire_location_info):
-        for k, v in self.FIRE_LOCATION_INFO_DEFAULTS.items():
+        for k, v in list(self.FIRE_LOCATION_INFO_DEFAULTS.items()):
             if fire_location_info.get(k) is None:
                 fire_location_info[k] = v
 
