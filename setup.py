@@ -28,7 +28,7 @@ setup(
     url='https://github.com/pnwairfire/plumerise',
     description='Package for computing plume rise from time-profiled emissions output.',
     install_requires=[
-        "pyairfire>=0.8.16"
+        "pyairfire>=1.1.1"
     ],
     dependency_links=[
         "https://pypi.smoke.airfire.org/simple/pyairfire/",
