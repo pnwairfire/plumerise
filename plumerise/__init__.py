@@ -12,10 +12,11 @@ def compute_plumerise_hour(smoldering_fraction, plume_top_meters, plume_bottom_m
     }
 
     if plume_top_meters is not None and plume_bottom_meters is not None:
-        plume_rise_hr['percentile_000'] = plume_bottom_meters
-        plume_rise_hr['percentile_100'] = plume_top_meters
-        interp_percentile = lambda p : (plume_bottom_meters + ((plume_top_meters - plume_bottom_meters) / 100.0) * p)
-        for p in range(5, 100, 5):
-            plume_rise_hr["percentile_%03d" % p] = interp_percentile(p)
+        # evenly distribute emissions among 20 vertical layers between
+        # plume bottom and plume top
+        spacing = (plume_top_meters - plume_bottom_meters) / 20
+        plume_rise_hr['heights'] = [plume_bottom_meters + n * spacing
+            for n in range(21)]
+        plume_rise_hr['emission_fractions'] = [0.05] * 20
 
     return plume_rise_hr
