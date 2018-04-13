@@ -36,7 +36,7 @@ or http:
 
 Run the following to install dependencies:
 
-    pip install --trusted-host pypi.smoke.airfire.org -r requirements.txt
+    pip install -r requirements.txt
 
 Run the following to install packages required for development and testing:
 
@@ -70,7 +70,7 @@ First, install pip (with sudo if necessary):
 
 Then, to install, for example, v2.0.1, use the following (with sudo if necessary):
 
-    pip install --trusted-host pypi.smoke.airfire.org -i http://pypi.smoke.airfire.org/simple plumerise==v2.0.1
+    pip install --extra-index https://pypi.airfire.org/simple plumerise==v2.0.1
 
 If you get an error like
 
