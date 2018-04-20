@@ -128,12 +128,13 @@ class FEPSPlumeRise(object):
                 fire_location_info[k] = v
 
     def _write_consumption(self, consumption, fire_location_info, filename):
+        area = fire_location_info['area']
         f = open(filename, 'w')
-        f.write("cons_flm=%f\n" % consumption["flaming"])
-        f.write("cons_sts=%f\n" % consumption["smoldering"])
-        f.write("cons_lts=%f\n" % consumption["residual"])
+        f.write("cons_flm=%f\n" % (consumption["flaming"] / area))
+        f.write("cons_sts=%f\n" % (consumption["smoldering"] / area))
+        f.write("cons_lts=%f\n" % (consumption["residual"] / area))
         # TODO: what to do if duff consumption isn't defined? is 0.0 appropriate?
-        f.write("cons_duff=%f\n" % consumption.get("duff", 0.0))
+        f.write("cons_duff=%f\n" % (consumption.get("duff", 0.0) / area))
         f.write("moist_duff=%f\n" % fire_location_info['moisture_duff'])
         f.close()
 

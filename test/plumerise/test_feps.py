@@ -178,7 +178,7 @@ class TestFEPSPlumeRise(object):
         }
         expected_weather_file_contents = 'sunsetTime=19\nmiddayTime=14\npredawnTime=4\nminHumid=40.000000\nmaxHumid=80.000000\nminTemp=13.000000\nmaxTemp=30.000000\nminWindAtFlame=6.000000\nmaxWindAtFlame=6.000000\nminWindAloft=6.000000\nmaxWindAloft=6.000000\n'
         expected_timeprofile_file_contents = 'hour, area_fract, flame, smolder, residual\n0, 0.333333, 0.333333, 0.333333, 0.333333\n1, 0.333333, 0.333333, 0.333333, 0.333333\n2, 0.333333, 0.333333, 0.333333, 0.333333\n'
-        expected_consumption_file_contents = 'cons_flm=2165.683196\ncons_sts=2091.347351\ncons_lts=1761.041419\ncons_duff=0.000000\nmoist_duff=100.000000\n'
+        expected_consumption_file_contents = 'cons_flm=10.828416\ncons_sts=10.456737\ncons_lts=8.805207\ncons_duff=0.000000\nmoist_duff=100.000000\n'
 
         working_dir = tempfile.mkdtemp()
         plume_file_content = 'hour, heat, smold_frac, plume_bot, plume_top\n0, 2082570545595.600342, 0.050000, 614.072536, 18160.408515\n1, 1110703180280.029053, 0.493334, 614.072536, 16164.954419\n2, 1110703180280.029053, 0.493334, 614.072536, 16156.323741\n'
