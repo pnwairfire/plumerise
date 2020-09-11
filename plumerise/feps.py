@@ -36,7 +36,7 @@ class FEPSPlumeRise(object):
         self._config = config
 
     def config(self, key):
-        return self._config.get(key.lower, getattr(self, key))
+        return self._config.get(key.lower(), getattr(self, key))
 
     def compute(self, timeprofile, consumption, fire_location_info,
             working_dir=None):
