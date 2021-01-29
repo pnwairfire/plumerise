@@ -37,9 +37,6 @@ or http:
 Run the following to install dependencies:
 
     pip install -r requirements.txt
-
-Run the following to install packages required for development and testing:
-
     pip install -r requirements-test.txt
     pip install -r requirements-dev.txt
 
