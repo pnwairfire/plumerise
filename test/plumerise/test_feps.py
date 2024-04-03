@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 
 #from numpy.testing import assert_approx_equal
-from py.test import raises
+from pytest import raises
 
 from plumerise.feps import FEPSPlumeRise
 

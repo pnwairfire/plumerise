@@ -3,7 +3,7 @@ __author__      = "Joel Dubowy"
 import copy
 
 #from numpy.testing import assert_approx_equal
-from py.test import raises
+from pytest import raises
 
 from plumerise.sev import SEVPlumeRise
 
