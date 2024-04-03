@@ -29,7 +29,7 @@ class SEVPlumeRise(object):
         self._config = config
 
     def config(self, key):
-        return self._config.get(key.lower, getattr(self, key))
+        return self._config.get(key.lower(), getattr(self, key))
 
     def compute(self, local_met, fire_area, smolder_fraction=0.0, frp=None):
         """
