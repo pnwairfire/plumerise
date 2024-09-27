@@ -79,7 +79,7 @@ class SEVPlumeRise(object):
             # The met file may spell this variable one of two ways
             pbl = met_loc.get('HPBL') if met_loc.get('PBLH') is None else met_loc.get('PBLH')
             hourly_data['height_abl'] = pbl                      # m
-            hourly_data['frp'] = frp
+            hourly_data['frp'] = frp   # Watts
 
             plume_height = self.cal_smoke_height(hourly_data)
             plume_top_meters = plume_height
